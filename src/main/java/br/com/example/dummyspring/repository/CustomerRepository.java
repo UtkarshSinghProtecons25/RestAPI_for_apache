@@ -1,0 +1,1 @@
+package br.com.example.dummyspring.repository; import br.com.example.dummyspring.model.domain.Customer; import org.springframework.data.jpa.repository.JpaRepository; public interface CustomerRepository extends JpaRepository<Customer,Long>{boolean existsByEmail(String email);}
