@@ -1,0 +1,1 @@
+package br.com.example.davidarchanjo.repository; import br.com.example.davidarchanjo.model.domain.Scrap; import org.springframework.data.jpa.repository.JpaRepository; public interface ScrapRepository extends JpaRepository<Scrap,Long>{}

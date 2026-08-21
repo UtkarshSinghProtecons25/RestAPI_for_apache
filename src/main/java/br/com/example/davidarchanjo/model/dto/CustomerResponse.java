@@ -1,0 +1,1 @@
+package br.com.example.davidarchanjo.model.dto; import lombok.*; import java.time.Instant; @Data @Builder @NoArgsConstructor @AllArgsConstructor public class CustomerResponse { private String customerId,firstName,lastName,email,phone,status; private Instant createdAt; }

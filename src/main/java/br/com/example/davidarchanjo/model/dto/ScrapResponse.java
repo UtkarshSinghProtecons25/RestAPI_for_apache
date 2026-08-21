@@ -1,0 +1,1 @@
+package br.com.example.davidarchanjo.model.dto; import lombok.*; import java.time.Instant; @Data @Builder @NoArgsConstructor @AllArgsConstructor public class ScrapResponse { private String scrapId,status,customerId,vehicleId,paymentId; private Instant createdAt; }

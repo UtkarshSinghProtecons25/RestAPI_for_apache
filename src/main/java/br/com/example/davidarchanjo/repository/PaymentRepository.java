@@ -1,0 +1,1 @@
+package br.com.example.davidarchanjo.repository; import br.com.example.davidarchanjo.model.domain.Payment; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface PaymentRepository extends JpaRepository<Payment,Long>{ Optional<Payment> findTopByLenderIdOrderByIdDesc(String lenderId); }
