@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -29,9 +31,25 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public AuthResponseDTO login(LoginRequestDTO dto) {
-        User u = repository.findByEmail(dto.getEmail()).orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
-        if (!passwordEncoder.matches(dto.getPassword(), u.getPassword()))
-            throw new InvalidCredentialsException("Invalid email or password");
+
+        Optional<User> userOptional = repository.findByEmail(dto.getEmail());
+
+        /* Email does not exist */
+        if (!userOptional.isPresent()) {
+            throw new UserNotFoundException(
+                    "Invalid credentials. Please check your email or sign up."
+            );
+        }
+
+        User u = userOptional.get();
+
+        // Email exists, but password is incorrect
+        if (!passwordEncoder.matches(dto.getPassword(), u.getPassword())) {
+            throw new InvalidCredentialsException(
+                    "Invalid credentials. Password is incorrect."
+            );
+        }
+
         return response(u);
     }
 

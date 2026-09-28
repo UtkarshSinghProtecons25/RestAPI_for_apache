@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/vehicles")
@@ -34,11 +35,25 @@ public class VehicleController {
             throw new RuntimeException(e);
         }
     }
+    @GetMapping
+    public List<VehicleResponse> getVehicles(
+            Authentication authentication) {
+
+        Long userId = Long.valueOf(authentication.getName());
+
+        return vehicleService.getByUserId(userId);
+    }
+
 
     @GetMapping("/{vin}")
     public VehicleResponse get(
-            @PathVariable @Size(min = 17, max = 17) String vin,
+            @PathVariable
+            @Size(min = 17, max = 17)
+            String vin,
             Authentication authentication) {
+
+        Long userId = Long.valueOf(authentication.getName());
+
         return vehicleService.getByVin(vin);
     }
 }

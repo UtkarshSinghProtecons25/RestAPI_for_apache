@@ -1,1 +1,15 @@
-package br.com.example.dummyspring.model.dto; import lombok.*; @Data @Builder @AllArgsConstructor @NoArgsConstructor public class LoginResponse {private String token; private String tokenType; private long expiresIn; private String userId; private String role;}
+package br.com.example.dummyspring.model.dto;
+
+import lombok.*;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class LoginResponse {
+    private String token;
+    private String tokenType;
+    private long expiresIn;
+    private String userId;
+    private String role;
+}

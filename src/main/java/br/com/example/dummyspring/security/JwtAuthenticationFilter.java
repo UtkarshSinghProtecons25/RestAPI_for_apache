@@ -14,12 +14,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
-
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwt;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        return path.equals("/api/v1/auth/login")
+                || path.equals("/api/v1/auth/signup");
+    }
 
     @Override
     protected void doFilterInternal(
@@ -30,10 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String header = request.getHeader("Authorization");
 
-        System.out.println("===== JWT FILTER =====");
-        System.out.println("Request URI: " + request.getRequestURI());
-        System.out.println("Authorization: " + header);
-
         if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -42,23 +45,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = header.substring(7);
 
         try {
-
             Claims claims = jwt.claims(token);
 
             String userId = claims.getSubject();
             String role = claims.get("role", String.class);
-
-            System.out.println("JWT User ID: " + userId);
-            System.out.println("JWT Role: " + role);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             userId,
                             null,
                             Collections.singletonList(
-                                    new SimpleGrantedAuthority(
-                                            "ROLE_" + role
-                                    )
+                                    new SimpleGrantedAuthority("ROLE_" + role)
                             )
                     );
 
@@ -66,18 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .getContext()
                     .setAuthentication(authentication);
 
-            System.out.println(
-                    "Authenticated: " +
-                            SecurityContextHolder
-                                    .getContext()
-                                    .getAuthentication()
-                                    .isAuthenticated()
-            );
-
         } catch (Exception e) {
-
-            System.out.println("JWT ERROR: " + e.getMessage());
-
             SecurityContextHolder.clearContext();
         }
 

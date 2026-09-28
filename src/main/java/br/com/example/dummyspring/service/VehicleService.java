@@ -1,5 +1,6 @@
 package br.com.example.dummyspring.service;
 
+import br.com.example.dummyspring.exception.VehicleNotFoundException;
 import br.com.example.dummyspring.model.domain.Vehicle;
 import br.com.example.dummyspring.model.dto.VehicleRequest;
 import br.com.example.dummyspring.model.dto.VehicleResponse;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -52,7 +55,7 @@ public class VehicleService {
 
         Vehicle vehicle = repository.findByVin(vin)
                 .orElseThrow(() ->
-                        new RuntimeException("Vehicle not found"));
+                        new VehicleNotFoundException("Vehicle not found"));
 
         return toResponse(vehicle);
     }
@@ -81,5 +84,20 @@ public class VehicleService {
                 .titleStatus(vehicle.getTitleStatus())
                 .registrationState(vehicle.getRegistrationState())
                 .build();
+    }
+
+    public List<VehicleResponse> getByUserId(Long userId) {
+
+        List<Vehicle> vehicles = repository.findByUserId(userId);
+
+        if (vehicles.isEmpty()) {
+            throw new VehicleNotFoundException(
+                    "No vehicles exist for this user"
+            );
+        }
+
+        return vehicles.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 }

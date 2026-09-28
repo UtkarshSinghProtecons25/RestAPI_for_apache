@@ -1,1 +1,16 @@
-package br.com.example.dummyspring.model.dto; import lombok.*; import java.math.BigDecimal; import java.time.Instant; @Data @Builder @NoArgsConstructor @AllArgsConstructor public class PaymentResponse { private String paymentId,status,currency,customerId,vehicleId,vin,lenderId,lenderName; private BigDecimal paymentAmount; private Instant paymentDate; }
+package br.com.example.dummyspring.model.dto;
+
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PaymentResponse {
+    private String paymentId, status, currency, customerId, vehicleId, vin, lenderId, lenderName;
+    private BigDecimal paymentAmount;
+    private Instant paymentDate;
+}

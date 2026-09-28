@@ -1,1 +1,36 @@
-package br.com.example.dummyspring.controller; import br.com.example.dummyspring.model.domain.*; import br.com.example.dummyspring.model.dto.*; import br.com.example.dummyspring.repository.*; import lombok.RequiredArgsConstructor; import org.springframework.http.*; import org.springframework.web.bind.annotation.*; import javax.validation.Valid; import java.time.*; import java.util.*; @RestController @RequestMapping("/api/v1/scraps") @RequiredArgsConstructor public class ScrapController { private final ScrapRepository scraps; private final PaymentRepository payments; @PostMapping public ResponseEntity<?> create(@Valid @RequestBody ScrapRequest r){if(!Boolean.TRUE.equals(r.getVehicle().getTotalLoss()))return ResponseEntity.badRequest().body(Collections.singletonMap("message","Vehicle must be total loss"));Payment p=payments.findTopByLenderIdOrderByIdDesc(r.getLender().getLenderId()).orElseThrow(()->new IllegalArgumentException("Payment not completed"));if(!"SUCCESS".equals(p.getStatus()))return ResponseEntity.badRequest().body(Collections.singletonMap("message","Payment not completed"));String id=String.format("SCRAP-%d-%06d",Year.now().getValue(),scraps.count()+1);Scrap s=Scrap.builder().scrapId(id).status("SCRAP_APPROVED").customerId(r.getCustomer().getCustomerId()).vehicleId(r.getVehicle().getVehicleId()).vin(r.getVehicle().getVin()).lenderId(r.getLender().getLenderId()).paymentId(p.getPaymentId()).createdAt(Instant.now()).build();scraps.save(s);return ResponseEntity.status(201).body(ScrapResponse.builder().scrapId(id).status(s.getStatus()).customerId(s.getCustomerId()).vehicleId(s.getVehicleId()).paymentId(s.getPaymentId()).createdAt(s.getCreatedAt()).build());} }
+package br.com.example.dummyspring.controller;
+
+import br.com.example.dummyspring.model.domain.*;
+import br.com.example.dummyspring.model.dto.*;
+import br.com.example.dummyspring.repository.*;
+import br.com.example.dummyspring.service.ScrapService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.time.*;
+import java.util.*;
+
+@RestController
+@RequestMapping("/api/v1/scraps")
+@RequiredArgsConstructor
+public class ScrapController {
+
+    private final ScrapService scrapService;
+    @PostMapping
+    public ResponseEntity<ScrapResponse> scrap(
+            @Valid @RequestBody ScrapRequest request,
+            Authentication authentication) {
+
+        Long userId = Long.valueOf(authentication.getName());
+
+        ScrapResponse response =
+                scrapService.scrap(request.getActionOnVehicle(), userId);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
+    }
+}
